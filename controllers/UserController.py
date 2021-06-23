@@ -1,7 +1,6 @@
-from logger import logger
-
 from database.connector import session, Query
 from database.models.UserModel import UserModel
+from logger import logger
 
 
 class UserController:
@@ -10,11 +9,12 @@ class UserController:
             prepare_query = Query([UserModel]).filter(UserModel.id == user_id)
         else:
             prepare_query = Query([UserModel])
-        
+
         try:
             users = prepare_query.with_session(session).all()
         except Exception as e:
             logger.error(e.args)
+
             return {"error": True, "message": "Failed reading"}
         else:
             result = [{
@@ -25,6 +25,7 @@ class UserController:
             } for user in users]
 
             logger.info("Success reading users")
+
             return {"error": False, "message": "Success reading", "users": result}
 
     def create_user(self, name: str = None, surname: str = None, sex: str = None, birth_date: str = None) -> dict:
@@ -33,7 +34,7 @@ class UserController:
                 name=name,
                 surname=surname,
                 sex=sex,
-                birth_date=birth_date,
+                birth_date=birth_date,#todo тут должна быть дата, но в параметрах иождаешь СТР
             )
 
             session.add(user)

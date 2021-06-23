@@ -12,7 +12,7 @@ class PurchaseModel(Base):
         ondelete="CASCADE",
     ))
     product_id = Column(Integer(), ForeignKey(
-        column="products.id",
+        column="products.id", #todo если мы переименуем поле в табличке :), лучше модель указывать
         onupdate="CASCADE",
         ondelete="CASCADE",
     ))
