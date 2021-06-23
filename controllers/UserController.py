@@ -1,44 +1,58 @@
-from database.connector import session
+from logger import logger
+
+from database.connector import session, Query
 from database.models.UserModel import UserModel
 
 
 class UserController:
-    def create_user(self, **kwargs):
-        user = UserModel(**kwargs)
-
-        session.add(user)
-        session.commit()
-
-        if user.id:
-            return {"error": False, "message": "Successfully create new user"}
-        return {"error": True, "message": "Fail to create new user"}
-
-    def read_users(self, params):
-        if 'id' in params.keys():
-            users = session.query(UserModel).filter_by(id=params['id']).all()
+    def read_users(self, user_id: int = None) -> dict:
+        if user_id:
+            prepare_query = Query([UserModel]).filter(UserModel.id == user_id)
         else:
-            users = session.query(UserModel).all()
+            prepare_query = Query([UserModel])
+        
+        try:
+            users = prepare_query.with_session(session).all()
+        except Exception as e:
+            logger.error(e.args)
+            return {"error": True, "message": "Failed reading"}
+        else:
+            result = [{
+                "name": user.name,
+                "surname": user.surname,
+                "sex": user.sex,
+                "birth_date": user.birth_date.strftime('%d.%m.%Y')
+            } for user in users]
 
-        result = [{
-            "name": user.name,
-            "surname": user.surname,
-            "sex": user.sex,
-            "birth_date": self._get_birth_date(user.birth_date)
-        } for user in users]
+            logger.info("Success reading users")
+            return {"error": False, "message": "Success reading", "users": result}
 
-        return {"error": False, "message": "success", "user": result}
+    def create_user(self, name: str = None, surname: str = None, sex: str = None, birth_date: str = None) -> dict:
+        try:
+            user = UserModel(
+                name=name,
+                surname=surname,
+                sex=sex,
+                birth_date=birth_date,
+            )
 
-    def update_user(self, **kwargs):
-        session.query(UserModel).filter_by(id=kwargs['user_id']).update(kwargs['new_attrs'])
-        session.commit()
+            session.add(user)
+            session.commit()
+        except AttributeError as e:
+            session.rollback()
 
-        return {"error": False, "message": f"Successfully update user with id={kwargs['user_id']}"}
+            logger.error(e)
+            return {"error": True, "message": "Failed creating: exist not-null argument"}
+        except TypeError as e:
+            session.rollback()
 
-    def delete_user(self, user_id):
-        session.query(UserModel).filter_by(id=user_id).delete()
-        session.commit()
+            logger.error(e)
+            return {"error": True, "message": "Failed creating: not valid type argument"}
+        except Exception as e:
+            session.rollback()
 
-        return {"error": False, "message": f"Successfully delete user with id={user_id}"}
-
-    def _get_birth_date(self, date):
-        return date.strftime('%d.%m.%Y')
+            logger.error(e)
+            return {"error": True, "message": "Failed creating"}
+        else:
+            logger.info("Success creating users")
+            return {"error": False, "message": "Success creating", "user id": user.id}

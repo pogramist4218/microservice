@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker, Query
 from sqlalchemy.ext.declarative import declarative_base
 
 engine = create_engine('postgresql://pogramist:4derp96lewd69flou2@localhost:5432/pogramist', convert_unicode=True)
