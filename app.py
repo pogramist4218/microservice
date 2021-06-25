@@ -2,23 +2,27 @@ from flask import Flask, request
 
 
 from configs import APP_CONFIG #todo не вижу конфига
+# а надо его в гит добавлять?
+
 from controllers.UserController import UserController
+from controllers.ProductController import ProductController
+from controllers.PurchaseController import PurchaseController
 
 app = Flask(__name__)
 
 
 @app.route("/", methods=['GET'])
-def hello():
+def hello() -> dict:
     return {"message": "Hello, world"}
 
 
 @app.route("/user/create", methods=["POST"])
-def handle_create_user():
+def handle_create_user() -> dict:
     controller = UserController()
     response = controller.create_user(**request.get_json())
     return {"response": response}
 
-#todo зачем два роута ?
+
 @app.route("/user/read", methods=["GET"])
 @app.route("/user/read/<int:user_id>", methods=["GET"])
 def handle_read_user(user_id: int = None) -> dict:
@@ -26,15 +30,84 @@ def handle_read_user(user_id: int = None) -> dict:
     response = controller.read_users(user_id)
     return {"response": response}
 
-#todo https://ru.stackoverflow.com/questions/1070324/%D0%A0%D0%B0%D0%B7%D0%BD%D0%B8%D1%86%D0%B0-%D0%BE%D1%82%D0%BB%D0%B8%D1%87%D0%B8%D1%8F-%D0%BC%D0%B5%D0%B6%D0%B4%D1%83-put-%D0%B8-patch-%D0%B2-rest
-@app.route("/user/update/<int:user_id>", methods=["PATCH"])
-def handle_update_user(user_id: int):
-    return {"method": "update", "args": user_id}
+
+@app.route("/user/update/<int:user_id>", methods=["PUT"])
+def handle_update_user(user_id: int) -> dict:
+    controller = UserController()
+    response = controller.update_user(user_id, **request.get_json())
+    return {"response": response}
 
 
 @app.route("/user/delete/<int:user_id>", methods=["DELETE"])
-def handle_delete_user(user_id: int):
-    return {"method": "delete", "args": user_id}
+def handle_delete_user(user_id: int) -> dict:
+    controller = UserController()
+    response = controller.delete_user(user_id)
+    return {"response": response}
+
+
+@app.route("/product/create", methods=["POST"])
+def handle_create_product() -> dict:
+    controller = ProductController()
+    response = controller.create_product(**request.get_json())
+    return {"response": response}
+
+
+@app.route("/product/read", methods=["GET"])
+@app.route("/product/read/<int:product_id>", methods=["GET"])
+def handle_read_product(product_id: int = None) -> dict:
+    controller = ProductController()
+    response = controller.read_products(product_id)
+    return {"response": response}
+
+
+@app.route("/product/update/<int:product_id>", methods=["PUT"])
+def handle_update_product(product_id: int) -> dict:
+    controller = ProductController()
+    response = controller.update_product(product_id, **request.get_json())
+    return {"response": response}
+
+
+@app.route("/product/delete/<int:product_id>", methods=["DELETE"])
+def handle_delete_product(product_id: int) -> dict:
+    controller = ProductController()
+    response = controller.delete_product(product_id)
+    return {"response": response}
+
+
+@app.route("/purchase/create", methods=["POST"])
+def handle_create_purchase() -> dict:
+    controller = PurchaseController()
+    response = controller.create_purchase(**request.get_json())
+    return {"response": response}
+
+
+@app.route("/purchase/read", methods=["GET"])
+@app.route("/purchase/read/<int:purchase_id>", methods=["GET"])
+def handle_read_purchase(purchase_id: int = None) -> dict:
+    controller = PurchaseController()
+    response = controller.read_purchases(purchase_id)
+    return {"response": response}
+
+
+@app.route("/purchase/update/<int:purchase_id>", methods=["PUT"])
+def handle_update_purchase(purchase_id: int) -> dict:
+    controller = PurchaseController()
+    response = controller.update_purchase(purchase_id, **request.get_json())
+    return {"response": response}
+
+
+@app.route("/purchase/delete/<int:purchase_id>", methods=["DELETE"])
+def handle_delete_purchase(purchase_id: int) -> dict:
+    controller = PurchaseController()
+    response = controller.delete_purchase(purchase_id)
+    return {"response": response}
+
+
+@app.route("/purchase/filter-by-user/<string:field>/<string:value>", methods=["GET"])
+def handle_filter_by_user_field(field: str, value: str) -> dict:
+    controller = PurchaseController()
+    response = controller.filter_by_user_field(field, value)
+    return {"response": response}
 
 
 if __name__ == "__main__":
