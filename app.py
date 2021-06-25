@@ -2,7 +2,7 @@ from flask import Flask, request
 
 
 from configs import APP_CONFIG #todo не вижу конфига
-# а надо его в гит добавлять?
+# а надо его в гит добавлять? - ДА
 
 from controllers.UserController import UserController
 from controllers.ProductController import ProductController

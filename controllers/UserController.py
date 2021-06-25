@@ -6,7 +6,7 @@ from logger import logger
 
 
 class UserController:
-    sex_types = {
+    sex_types = { #todo хард код :)
         0: "Not known",
         1: "Male",
         2: "Female",
@@ -78,7 +78,7 @@ class UserController:
                     sex: int = None,
                     birth_date: datetime = None) -> dict:
         user = session.query(UserModel).get(user_id)
-        if user:
+        if user: #todo непонятная конструкция ниже ...
 
             try:
                 if name:

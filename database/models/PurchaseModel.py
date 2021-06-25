@@ -24,19 +24,19 @@ class PurchaseModel(Base):
     purchase_date = Column(Date())
 
     @validates("user_id")
-    def validate_user_id(self, key: int, item: int) -> int:
+    def validate_user_id(self, key: int, item: int) -> int:#todo зачем передавать key если ты его не юзаешь
         if not item:
             raise AttributeError("user_id has been null")
         return item
 
     @validates("product_id")
-    def validate_product_id(self, key: int, item: int) -> int:
+    def validate_product_id(self, key: int, item: int) -> int:#todo зачем передавать key если ты его не юзаешь
         if not item:
             raise AttributeError("product_id has been null")
         return item
 
     @validates("purchase_date")
-    def validate_purchase_date(self, key: int, item: datetime) -> datetime:
+    def validate_purchase_date(self, key: int, item: datetime) -> datetime:#todo зачем передавать key если ты его не юзаешь
         if not item:
             raise AttributeError("purchase_date has been null")
         try:

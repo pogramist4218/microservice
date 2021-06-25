@@ -12,7 +12,7 @@ class ProductModel(Base):
     price = Column(MONEY)
 
     @validates("name")
-    def validate_name(self, key: int, item: str) -> str:
+    def validate_name(self, key: int, item: str) -> str:#todo зачем передавать key если ты его не юзаешь
         if not item:
             raise AttributeError("name has been null")
         elif item.isnumeric():
@@ -20,7 +20,7 @@ class ProductModel(Base):
         return item
 
     @validates("price")
-    def validate_price(self, key: int, item: str) -> str:
+    def validate_price(self, key: int, item: str) -> str:#todo зачем передавать key если ты его не юзаешь
         if not item:
             raise AttributeError("price has been null")
         return item
