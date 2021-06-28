@@ -3,7 +3,6 @@
 
 # Environment dir and file
 venv/
-configs.py
 
 # Log file
 microservice.log

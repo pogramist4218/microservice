@@ -12,15 +12,15 @@ class ProductModel(Base):
     price = Column(MONEY)
 
     @validates("name")
-    def validate_name(self, key: int, item: str) -> str:#todo зачем передавать key если ты его не юзаешь
+    def validate_name(self, key: int, item: str) -> str:
         if not item:
-            raise AttributeError("name has been null")
+            raise AttributeError(f"{key} has been null")
         elif item.isnumeric():
-            raise TypeError("name has been numeric")
+            raise TypeError(f"{key} has been numeric")
         return item
 
     @validates("price")
-    def validate_price(self, key: int, item: str) -> str:#todo зачем передавать key если ты его не юзаешь
+    def validate_price(self, key: int, item: str) -> str:
         if not item:
-            raise AttributeError("price has been null")
+            raise AttributeError(f"{key} has been null")
         return item

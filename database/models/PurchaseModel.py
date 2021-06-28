@@ -23,24 +23,18 @@ class PurchaseModel(Base):
     ))
     purchase_date = Column(Date())
 
-    @validates("user_id")
-    def validate_user_id(self, key: int, item: int) -> int:#todo зачем передавать key если ты его не юзаешь
+    @validates("user_id", "product_id")
+    def validate_user_id_or_product_id(self, key: int, item: int) -> int:
         if not item:
-            raise AttributeError("user_id has been null")
-        return item
-
-    @validates("product_id")
-    def validate_product_id(self, key: int, item: int) -> int:#todo зачем передавать key если ты его не юзаешь
-        if not item:
-            raise AttributeError("product_id has been null")
+            raise AttributeError(f"{key} has been null")
         return item
 
     @validates("purchase_date")
-    def validate_purchase_date(self, key: int, item: datetime) -> datetime:#todo зачем передавать key если ты его не юзаешь
+    def validate_purchase_date(self, key: int, item: datetime) -> datetime:
         if not item:
-            raise AttributeError("purchase_date has been null")
+            raise AttributeError(f"{key} has been null")
         try:
             datetime.strptime(item, '%d.%m.%Y')
         except ValueError:
-            raise TypeError("purchase_date has not been like <DD.MM.YYYY>")
+            raise TypeError(f"{key} has not been like <DD.MM.YYYY>")
         return item

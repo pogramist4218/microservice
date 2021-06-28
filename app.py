@@ -1,8 +1,7 @@
 from flask import Flask, request
 
 
-from configs import APP_CONFIG #todo не вижу конфига
-# а надо его в гит добавлять? - ДА
+from configs import APP_CONFIG
 
 from controllers.UserController import UserController
 from controllers.ProductController import ProductController
@@ -107,6 +106,13 @@ def handle_delete_purchase(purchase_id: int) -> dict:
 def handle_filter_by_user_field(field: str, value: str) -> dict:
     controller = PurchaseController()
     response = controller.filter_by_user_field(field, value)
+    return {"response": response}
+
+
+@app.route("/purchase/user/<int:user_id>", methods=["GET"])
+def handle_user_purchases(user_id: int) -> dict:
+    controller = PurchaseController()
+    response = controller.user_purchases(user_id)
     return {"response": response}
 
 

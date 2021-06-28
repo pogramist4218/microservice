@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func
 from database.connector import session, Query
 from database.models.PurchaseModel import PurchaseModel, UserModel, ProductModel
 from logger import logger
@@ -130,9 +131,9 @@ class PurchaseController:
 
     def filter_by_user_field(self, field: str, value: str) -> dict:
         if field in UserModel.__table__.columns:
-            prepare_query = Query([PurchaseModel, UserModel, ProductModel])\
-                .join(ProductModel, PurchaseModel.product_id == ProductModel.id) \
-                .join(UserModel, PurchaseModel.user_id == UserModel.id) \
+            prepare_query = Query([UserModel, ProductModel, PurchaseModel])\
+                .join(ProductModel) \
+                .join(UserModel) \
                 .filter_by(**{field: value})
 
             try:
@@ -143,18 +144,40 @@ class PurchaseController:
                 return {"message": "Failed filter"}
             else:
                 result = [{
-                    "user": {
-                        "name": purchase['UserModel'].name,
-                        "surname": purchase['UserModel'].surname,
-                    },
-                    "products": [{
-                        "name": child_purchase['ProductModel'].name,
-                        "price": child_purchase['ProductModel'].price,
-                        "purchase date": child_purchase['PurchaseModel'].purchase_date.strftime('%d.%m.%Y')
-                    } for child_purchase in purchases if child_purchase['UserModel'].id == purchase['UserModel'].id],
-                } for purchase in purchases]
+                    "name": product.name,
+                    "price": product.price,
+                    "date of buying": purchase.purchase_date.strftime('%d.%m.%Y')
+                } for user, product, purchase in purchases]
 
-            logger.info("Success filter purchases")
+            logger.info(f"Success filter purchases by {field}={value}")
 
             return {"message": "Success filtering purchases", "purchases": result}
         return {"message": "Failed filter: not have this field"}
+
+    def user_purchases(self, user_id: int) -> dict:
+        prepare_query = Query([
+            func.count(ProductModel.id),
+            func.sum(ProductModel.price),
+            ProductModel.name]) \
+            .join(PurchaseModel) \
+            .filter(PurchaseModel.user_id == user_id) \
+            .group_by(ProductModel.name)
+
+        try:
+            purchases = prepare_query.with_session(session).all()
+        except Exception as e:
+            logger.error(e.args)
+
+            return {"message": "Failed filter"}
+        else:
+            message = f"Success get info about purchases for user({user_id})"
+
+            result = [{
+                "name": purchase[2],
+                "count": purchase[0],
+                "sum": purchase[1]
+            } for purchase in purchases]
+
+            logger.info(message)
+
+            return {"message": message, "purchases": result}
