@@ -1,6 +1,7 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Date, SmallInteger
 from sqlalchemy.orm import validates
+from sqlalchemy import Column, Integer, String, Date, SmallInteger
+
 from database.connector import Base
 
 

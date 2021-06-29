@@ -1,12 +1,13 @@
 from datetime import datetime
 
+from logger import logger
 from database.connector import session, Query
 from database.models.UserModel import UserModel
-from logger import logger
 
 
 class UserController:
-    sex_types = { #todo хард код :)
+    # https://ru.wikipedia.org/wiki/ISO_5218
+    sex_types = {
         0: "Not known",
         1: "Male",
         2: "Female",
@@ -78,7 +79,7 @@ class UserController:
                     sex: int = None,
                     birth_date: datetime = None) -> dict:
         user = session.query(UserModel).get(user_id)
-        if user: #todo непонятная конструкция ниже ...
+        if user:
 
             try:
                 if name:
@@ -90,7 +91,6 @@ class UserController:
                 if birth_date:
                     user.birth_date = birth_date
 
-                session.add(user)
                 session.commit()
             except AttributeError as e:
                 session.rollback()

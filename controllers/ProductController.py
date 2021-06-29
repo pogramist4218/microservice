@@ -1,6 +1,6 @@
+from logger import logger
 from database.connector import session, Query
 from database.models.ProductModel import ProductModel
-from logger import logger
 
 
 class ProductController:
@@ -70,7 +70,6 @@ class ProductController:
                 if price:
                     product.price = price
 
-                session.add(product)
                 session.commit()
             except AttributeError as e:
                 session.rollback()

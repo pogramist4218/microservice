@@ -1,13 +1,14 @@
 from datetime import datetime
-
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
+
+from logger import logger
 from database.connector import session, Query
 from database.models.PurchaseModel import PurchaseModel, UserModel, ProductModel
-from logger import logger
 
 
 class PurchaseController:
+
     def read_purchases(self, purchase_id: int = None) -> dict:
         prepare_query = Query([PurchaseModel, UserModel, ProductModel]) \
             .join(UserModel, PurchaseModel.user_id == UserModel.id) \
@@ -89,7 +90,6 @@ class PurchaseController:
                 if purchase_date:
                     purchase.purchase_date = purchase_date
 
-                session.add(purchase)
                 session.commit()
             except AttributeError as e:
                 session.rollback()
@@ -130,29 +130,27 @@ class PurchaseController:
             return {"message": message}
 
     def filter_by_user_field(self, field: str, value: str) -> dict:
-        if field in UserModel.__table__.columns:
-            prepare_query = Query([UserModel, ProductModel, PurchaseModel])\
-                .join(ProductModel) \
-                .join(UserModel) \
-                .filter_by(**{field: value})
+        prepare_query = Query([UserModel, ProductModel, PurchaseModel])\
+            .join(ProductModel) \
+            .join(UserModel) \
+            .filter_by(**{field: value})
 
-            try:
-                purchases = prepare_query.with_session(session).all()
-            except Exception as e:
-                logger.error(e.args)
+        try:
+            purchases = prepare_query.with_session(session).all()
+        except Exception as e:
+            logger.error(e.args)
 
-                return {"message": "Failed filter"}
-            else:
-                result = [{
-                    "name": product.name,
-                    "price": product.price,
-                    "date of buying": purchase.purchase_date.strftime('%d.%m.%Y')
-                } for user, product, purchase in purchases]
+            return {"message": "Failed filter"}
+        else:
+            result = [{
+                "name": product.name,
+                "price": product.price,
+                "date of buying": purchase.purchase_date.strftime('%d.%m.%Y')
+            } for user, product, purchase in purchases]
 
-            logger.info(f"Success filter purchases by {field}={value}")
+        logger.info(f"Success filter purchases by {field}={value}")
 
-            return {"message": "Success filtering purchases", "purchases": result}
-        return {"message": "Failed filter: not have this field"}
+        return {"message": "Success filtering purchases", "purchases": result}
 
     def user_purchases(self, user_id: int) -> dict:
         prepare_query = Query([

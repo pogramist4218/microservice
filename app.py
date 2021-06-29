@@ -1,8 +1,6 @@
 from flask import Flask, request
 
-
 from configs import APP_CONFIG
-
 from controllers.UserController import UserController
 from controllers.ProductController import ProductController
 from controllers.PurchaseController import PurchaseController

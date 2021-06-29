@@ -1,8 +1,8 @@
 from datetime import datetime
-
-from sqlalchemy import Column, Integer, Date, ForeignKey
-from database.connector import Base
 from sqlalchemy.orm import validates
+from sqlalchemy import Column, Integer, Date, ForeignKey
+
+from database.connector import Base
 from database.models.UserModel import UserModel
 from database.models.ProductModel import ProductModel
 

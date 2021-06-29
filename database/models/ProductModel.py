@@ -1,6 +1,7 @@
+from sqlalchemy.orm import validates
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import MONEY
-from sqlalchemy.orm import validates
+
 from database.connector import Base
 
 
