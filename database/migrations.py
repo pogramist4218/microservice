@@ -48,6 +48,7 @@ purchases = Table('purchase', metadata,
                       onupdate="CASCADE",
                       ondelete="CASCADE",
                   )),
+                  Column('purchase_date', Date, nullable=False),
                   )
 
 metadata.create_all(engine)
@@ -62,14 +63,14 @@ mock_users = users.insert().values([
         "sex": random.choice([0, 1, 2, 9]),
         "birth_date": fake.date()
     }
-    for _ in range(5)
+    for _ in range(15)
 ])
 mock_products = products.insert().values([
     {
         "name": fake.machine_make_model(),
         "price": str(random.randint(100, 1000))
     }
-    for _ in range(5)
+    for _ in range(15)
 ])
 
 engine.execute(mock_users)
@@ -83,9 +84,10 @@ products_id = [product[0] for product in result_products]
 mock_purchases = purchases.insert().values([
     {
         "user_id": random.choice(users_id),
-        "product_id": random.choice(products_id)
+        "product_id": random.choice(products_id),
+        "purchase_date": fake.date(),
     }
-    for _ in range(10)
+    for _ in range(50)
 ])
 
 engine.execute(mock_purchases)

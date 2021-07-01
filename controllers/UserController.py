@@ -14,7 +14,7 @@ class UserController:
         9: "Not applicable",
     }
 
-    def read_users(self, user_id: int = None) -> dict:
+    def read_users(self, user_id: int = None) -> list:
         if user_id:
             prepare_query = Query([UserModel]).filter(UserModel.id == user_id)
         else:
@@ -22,10 +22,14 @@ class UserController:
 
         try:
             users = prepare_query.with_session(session).all()
+            if not users:
+                logger.error(f"Failed reading: not exists user({user_id})")
+
+                return [{"message": f"Failed reading: not exists user({user_id})"}, 404]
         except Exception as e:
             logger.error(e.args)
 
-            return {"message": "Failed reading"}
+            return [{"message": "Failed reading"}, 400]
         else:
             result = [{
                 "name": user.name,
@@ -36,13 +40,13 @@ class UserController:
 
             logger.info("Success reading users")
 
-            return {"message": "Success reading", "users": result}
+            return [{"message": "Success reading", "users": result}, 200]
 
     def create_user(self,
                     name: str = None,
                     surname: str = None,
                     sex: int = None,
-                    birth_date: datetime = None) -> dict:
+                    birth_date: datetime = None) -> list:
         try:
             user = UserModel(
                 name=name,
@@ -57,27 +61,27 @@ class UserController:
             session.rollback()
 
             logger.error(e)
-            return {"message": "Failed creating: exist not-null argument"}
+            return [{"message": "Failed creating: exist null argument"}, 400]
         except TypeError as e:
             session.rollback()
 
             logger.error(e)
-            return {"message": "Failed creating: not valid type argument"}
+            return [{"message": "Failed creating: not valid type argument"}, 400]
         except Exception as e:
             session.rollback()
 
             logger.error(e)
-            return {"message": "Failed creating"}
+            return [{"message": "Failed creating"}, 400]
         else:
             logger.info(f"Success creating user({user.id})")
-            return {"message": "Success creating user", "user id": user.id}
+            return [{"message": "Success creating user", "user id": user.id}, 200]
 
     def update_user(self,
                     user_id: int,
                     name: str = None,
                     surname: str = None,
                     sex: int = None,
-                    birth_date: datetime = None) -> dict:
+                    birth_date: datetime = None) -> list:
         user = session.query(UserModel).get(user_id)
         if user:
 
@@ -96,26 +100,26 @@ class UserController:
                 session.rollback()
 
                 logger.error(e)
-                return {"message": "Failed creating: exist not-null argument"}
+                return [{"message": "Failed creating: exist null argument"}, 400]
             except TypeError as e:
                 session.rollback()
 
                 logger.error(e)
-                return {"message": "Failed creating: not valid type argument"}
+                return [{"message": "Failed creating: not valid type argument"}, 400]
             except Exception as e:
                 session.rollback()
                 logger.error(e.args)
 
-                return {"message": "Failed updating"}
+                return [{"message": "Failed updating"}, 400]
             else:
                 message = f"Success updating user({user_id})"
                 logger.info(message)
 
-                return {"message": message}
+                return [{"message": message}, 200]
         else:
-            return {"message": f"Failed updating: not exist user({user_id})"}
+            return [{"message": f"Failed updating: not exist user({user_id})"}, 404]
 
-    def delete_user(self, user_id: int) -> dict:
+    def delete_user(self, user_id: int) -> list:
 
         try:
             session.query(UserModel).filter(UserModel.id == user_id).delete()
@@ -124,9 +128,9 @@ class UserController:
             session.rollback()
             logger.error(e.args)
 
-            return {"message": f"Failed deleting: not exist user({user_id})"}
+            return [{"message": f"Failed deleting: not exist user({user_id})"}, 404]
         else:
             message = f"Success deleting user({user_id})"
             logger.info(message)
 
-            return {"message": message}
+            return [{"message": message}, 200]
