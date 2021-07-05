@@ -25,6 +25,8 @@ class PurchaseModel(Base):
 
     @validates("user_id", "product_id")
     def validate_user_id_or_product_id(self, key: int, item: int) -> int:
+        if not item:
+            raise AttributeError(f"{key} has been null")
         return item
 
     @validates("purchase_date")

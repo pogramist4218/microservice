@@ -16,6 +16,7 @@ class UserModel(Base):
 
     @validates("name", "surname")
     def validate_name_or_surname(self, key: str, item: str) -> str:
+        item = item.strip()
         if not item.isalpha():
             raise TypeError(f"{key} has not valid symbols")
         return item
