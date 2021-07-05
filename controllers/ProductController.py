@@ -99,16 +99,21 @@ class ProductController:
             return [{"message": f"Failed updating: not exist product({product_id})"}, 404]
 
     def delete_product(self, product_id: int) -> list:
-        try:
-            session.query(ProductModel).filter(ProductModel.id == product_id).delete()
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            logger.error(e.args)
+        product = session.query(ProductModel).get(product_id)
+        if product:
 
-            return [{"message": f"Failed deleting: not exist product({product_id})"}, 404]
+            try:
+                session.query(ProductModel).filter(ProductModel.id == product_id).delete()
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                logger.error(e.args)
+
+                return [{"message": f"Failed deleting: not exist product({product_id})"}, 404]
+            else:
+                message = f"Success deleting product({product_id})"
+                logger.info(message)
+
+                return [{"message": message}, 200]
         else:
-            message = f"Success deleting product({product_id})"
-            logger.info(message)
-
-            return [{"message": message}, 200]
+            return [{"message": f"Failed deleting: not exist product({product_id})"}, 404]

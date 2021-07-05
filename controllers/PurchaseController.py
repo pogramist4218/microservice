@@ -10,11 +10,15 @@ from database.models.PurchaseModel import PurchaseModel, UserModel, ProductModel
 class PurchaseController:
 
     def read_purchases(self, purchase_id: int = None) -> list:
-        prepare_query = Query([PurchaseModel, UserModel, ProductModel]) \
-            .join(UserModel, PurchaseModel.user_id == UserModel.id) \
-            .join(ProductModel, PurchaseModel.product_id == ProductModel.id)
         if purchase_id:
-            prepare_query.filter(PurchaseModel.id == purchase_id)
+            prepare_query = Query([PurchaseModel, UserModel, ProductModel]) \
+                .join(UserModel, PurchaseModel.user_id == UserModel.id) \
+                .join(ProductModel, PurchaseModel.product_id == ProductModel.id)\
+                .filter(PurchaseModel.id == purchase_id)
+        else:
+            prepare_query = Query([PurchaseModel, UserModel, ProductModel]) \
+                .join(UserModel, PurchaseModel.user_id == UserModel.id) \
+                .join(ProductModel, PurchaseModel.product_id == ProductModel.id)
 
         try:
             purchases = prepare_query.with_session(session).all()
@@ -119,19 +123,24 @@ class PurchaseController:
             return [{"message": f"Failed updating: not exist purchase({purchase_id})"}, 404]
 
     def delete_purchase(self, purchase_id: int) -> list:
-        try:
-            session.query(PurchaseModel).filter(PurchaseModel.id == purchase_id).delete()
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            logger.error(e.args)
+        purchase = session.query(PurchaseModel).get(purchase_id)
+        if purchase:
 
-            return [{"message": f"Failed deleting: not exist purchase({purchase_id})"}, 404]
+            try:
+                session.query(PurchaseModel).filter(PurchaseModel.id == purchase_id).delete()
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                logger.error(e.args)
+
+                return [{"message": f"Failed deleting: not exist purchase({purchase_id})"}, 404]
+            else:
+                message = f"Success deleting purchase({purchase_id})"
+                logger.info(message)
+
+                return [{"message": message}, 200]
         else:
-            message = f"Success deleting purchase({purchase_id})"
-            logger.info(message)
-
-            return [{"message": message}, 200]
+            return [{"message": f"Failed deleting: not exist purchase({purchase_id})"}, 404]
 
     def filter_by_user_field(self, field: str, value: str) -> list:
         prepare_query = Query([UserModel, ProductModel, PurchaseModel])\

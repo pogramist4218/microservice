@@ -14,10 +14,8 @@ class ProductModel(Base):
 
     @validates("name")
     def validate_name(self, key: int, item: str) -> str:
-        if not item:
-            raise AttributeError(f"{key} has been null")
-        elif item.isnumeric():
-            raise TypeError(f"{key} has been numeric")
+        if not item.isalpha():
+            raise TypeError(f"{key} has not valid symbol")
         return item
 
     @validates("price")

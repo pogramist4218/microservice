@@ -16,17 +16,13 @@ class UserModel(Base):
 
     @validates("name", "surname")
     def validate_name_or_surname(self, key: str, item: str) -> str:
-        if not item:
-            raise AttributeError(f"{key} has been null")
-        elif item.isnumeric():
-            raise TypeError(f"{key} has been numeric")
+        if not item.isalpha():
+            raise TypeError(f"{key} has not valid symbols")
         return item
 
     @validates("sex")
     def validate_sex(self, key: str, item: int) -> int:
-        if not item:
-            raise AttributeError(f"{key} has been null")
-        elif item not in [0, 1, 2, 9]:
+        if item not in [0, 1, 2, 9]:
             raise TypeError(f"{key} has not been in allowed types")
         return item
 

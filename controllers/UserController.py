@@ -120,17 +120,21 @@ class UserController:
             return [{"message": f"Failed updating: not exist user({user_id})"}, 404]
 
     def delete_user(self, user_id: int) -> list:
+        user = session.query(UserModel).get(user_id)
+        if user:
 
-        try:
-            session.query(UserModel).filter(UserModel.id == user_id).delete()
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            logger.error(e.args)
+            try:
+                session.query(UserModel).filter(UserModel.id == user_id).delete()
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                logger.error(e.args)
 
-            return [{"message": f"Failed deleting: not exist user({user_id})"}, 404]
+                return [{"message": f"Failed deleting: not exist user({user_id})"}, 404]
+            else:
+                message = f"Success deleting user({user_id})"
+                logger.info(message)
+
+                return [{"message": message}, 200]
         else:
-            message = f"Success deleting user({user_id})"
-            logger.info(message)
-
-            return [{"message": message}, 200]
+            return [{"message": f"Failed deleting: not exist user({user_id})"}, 404]
